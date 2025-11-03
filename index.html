@@ -411,6 +411,44 @@
         <div class="max-w-6xl mx-auto px-6">
           <h2 class="font-heading text-3xl md:text-4xl font-semibold">Tools, Stack, and Costs (No Surprise Expenses)</h2>
           <p class="mt-6 text-muted text-lg max-w-3xl">This cohort is about practical building with a realistic budget. We’ll keep tool costs as low as possible while still using a solid, modern stack.</p>
+          <div class="mt-10 border border-white/10 bg-black/50 rounded-3xl p-8 shadow-inner">
+            <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
+              <div class="lg:max-w-md">
+                <h3 class="font-heading text-2xl font-semibold">Microapp Stack &amp; Cost Calculator</h3>
+                <p class="mt-3 text-muted">Toggle what you plan to use and instantly see a realistic monthly spend. Control the stack, control the cost.</p>
+                <label class="mt-6 block text-sm font-semibold text-white/80" for="stack-tier">Select complexity</label>
+                <select id="stack-tier" class="mt-2 w-full rounded-xl bg-surface/80 border border-white/10 px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-accent/60">
+                  <option value="1">Tier 1 — Frontend only</option>
+                  <option value="2">Tier 2 — Frontend + automations</option>
+                  <option value="3">Tier 3 — Full web app</option>
+                </select>
+                <div class="mt-6 space-y-3">
+                  <label class="flex items-center gap-3 text-sm text-muted">
+                    <input id="toggle-vps" type="checkbox" class="h-4 w-4 rounded border-white/20 bg-black/40 text-accent focus:ring-accent/60" />
+                    <span>Use VPS hosting?</span>
+                  </label>
+                  <label class="flex items-center gap-3 text-sm text-muted">
+                    <input id="toggle-automations" type="checkbox" class="h-4 w-4 rounded border-white/20 bg-black/40 text-accent focus:ring-accent/60" />
+                    <span>Use automations (Make / n8n)?</span>
+                  </label>
+                  <label class="flex items-center gap-3 text-sm text-muted">
+                    <input id="toggle-supabase" type="checkbox" class="h-4 w-4 rounded border-white/20 bg-black/40 text-accent focus:ring-accent/60" />
+                    <span>Use Supabase?</span>
+                  </label>
+                </div>
+                <p id="stack-tier-summary" class="mt-6 text-sm text-muted/90"></p>
+              </div>
+              <div class="flex-1 border border-white/10 bg-surface/80 rounded-2xl p-6">
+                <h4 class="font-heading text-lg font-semibold text-white/90">Your estimated stack costs</h4>
+                <ul id="stack-breakdown" class="mt-4 space-y-3 text-sm text-muted"></ul>
+                <div class="mt-6 border-t border-white/10 pt-4">
+                  <p class="text-sm font-semibold text-white/80">Estimated monthly total</p>
+                  <p id="stack-total" class="mt-1 text-3xl font-heading font-semibold text-accent"></p>
+                </div>
+                <p id="stack-note" class="mt-4 text-xs text-muted"></p>
+              </div>
+            </div>
+          </div>
           <div class="mt-12 grid lg:grid-cols-2 gap-10">
             <div class="border border-white/10 bg-surface/80 rounded-3xl p-8">
               <h3 class="font-heading text-2xl font-semibold">Core Tools We’ll Use</h3>
@@ -698,6 +736,156 @@
           }
         });
       });
+
+      const stackTierSelect = document.getElementById('stack-tier');
+      const stackTierSummary = document.getElementById('stack-tier-summary');
+      const stackBreakdown = document.getElementById('stack-breakdown');
+      const stackTotal = document.getElementById('stack-total');
+      const stackNote = document.getElementById('stack-note');
+      const toggleVps = document.getElementById('toggle-vps');
+      const toggleAutomations = document.getElementById('toggle-automations');
+      const toggleSupabase = document.getElementById('toggle-supabase');
+
+      if (
+        stackTierSelect &&
+        stackTierSummary &&
+        stackBreakdown &&
+        stackTotal &&
+        stackNote &&
+        toggleVps &&
+        toggleAutomations &&
+        toggleSupabase
+      ) {
+        const currencyFormatter = new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+          maximumFractionDigits: 0
+        });
+
+        const tierConfigs = {
+          1: {
+            summary:
+              'Perfect for simple web widgets or calculators. You can stay lean with ChatGPT Plus and a domain. Flip on VPS only when you want to deploy on your own infrastructure.',
+            toggles: { vps: false, automations: false, supabase: false },
+            note:
+              'Numbers assume you are hosting a lightweight frontend. Add VPS if you want full control; automations and databases are usually unnecessary at this tier.'
+          },
+          2: {
+            summary:
+              'Ideal for tools that call APIs, AI, or spreadsheets. Automations are usually worth it, VPS stays optional unless you want to self-host.',
+            toggles: { vps: false, automations: true, supabase: false },
+            note:
+              'Automations unlock background jobs and AI workflows. Stick with managed services unless you need deeper control.'
+          },
+          3: {
+            summary:
+              'Full-stack microapps with auth, databases, and automations. Owning the VPS and database keeps costs predictable while you scale.',
+            toggles: { vps: true, automations: true, supabase: true },
+            note:
+              'This setup mirrors the cohort’s full build: VPS for hosting, Supabase for auth/database, automations for advanced workflows. Still far less than a typical SaaS burn.'
+          }
+        };
+
+        const baseItems = [
+          {
+            id: 'chatgpt',
+            label: 'ChatGPT Plus',
+            monthly: 20,
+            helper: 'Indispensable build partner at ~$20/mo.'
+          },
+          {
+            id: 'domain',
+            label: 'Domain or subdomain',
+            monthly: 1,
+            helper: '$12/year ≈ $1/mo. Use it to ship on your own brand.'
+          }
+        ];
+
+        const optionalItems = {
+          vps: {
+            id: 'vps',
+            label: 'VPS hosting',
+            monthly: 8,
+            helper: '$5–$10/mo for a reliable server.'
+          },
+          automations: {
+            id: 'automations',
+            label: 'Automation tools (Make / n8n)',
+            monthly: 15,
+            helper: 'Budget $10–$30/mo depending on volume.'
+          },
+          supabase: {
+            id: 'supabase',
+            label: 'Supabase (managed)',
+            monthly: 25,
+            helper: 'Free tier exists, but plan ~$25/mo once you have real users.'
+          }
+        };
+
+        function renderBreakdown() {
+          const tier = Number(stackTierSelect.value);
+          const selection = tierConfigs[tier];
+          if (selection) {
+            stackTierSummary.textContent = selection.summary;
+            stackNote.textContent = `${selection.note} Estimates use mid-range pricing so you can plan without surprises.`;
+          }
+
+          const chosenOptionals = [
+            toggleVps.checked ? optionalItems.vps : null,
+            toggleAutomations.checked ? optionalItems.automations : null,
+            toggleSupabase.checked ? optionalItems.supabase : null
+          ].filter(Boolean);
+
+          const itemsToRender = [...baseItems, ...chosenOptionals];
+          stackBreakdown.innerHTML = '';
+          let total = 0;
+
+          itemsToRender.forEach(item => {
+            total += item.monthly;
+            const li = document.createElement('li');
+            li.className = 'flex items-start justify-between gap-4 border-b border-white/5 pb-3 last:border-b-0 last:pb-0';
+
+            const labelWrapper = document.createElement('div');
+            const label = document.createElement('p');
+            label.className = 'font-medium text-white/80';
+            label.textContent = item.label;
+
+            const helper = document.createElement('p');
+            helper.className = 'text-xs text-muted mt-1';
+            helper.textContent = item.helper;
+
+            labelWrapper.appendChild(label);
+            labelWrapper.appendChild(helper);
+
+            const price = document.createElement('span');
+            price.className = 'text-sm font-semibold text-white/80';
+            price.textContent = `~${currencyFormatter.format(item.monthly)}/mo`;
+
+            li.appendChild(labelWrapper);
+            li.appendChild(price);
+            stackBreakdown.appendChild(li);
+          });
+
+          stackTotal.textContent = `~${currencyFormatter.format(total)}/mo`;
+        }
+
+        function applyTierDefaults() {
+          const tier = Number(stackTierSelect.value);
+          const config = tierConfigs[tier];
+          if (!config) return;
+          toggleVps.checked = config.toggles.vps;
+          toggleAutomations.checked = config.toggles.automations;
+          toggleSupabase.checked = config.toggles.supabase;
+          renderBreakdown();
+        }
+
+        stackTierSelect.addEventListener('change', applyTierDefaults);
+        [toggleVps, toggleAutomations, toggleSupabase].forEach(toggle => {
+          toggle.addEventListener('change', renderBreakdown);
+        });
+
+        applyTierDefaults();
+      }
 
       const tierQuizForm = document.getElementById('tier-quiz');
       const tierResultCard = document.getElementById('tier-quiz-result');
