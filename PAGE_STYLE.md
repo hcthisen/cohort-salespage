@@ -156,7 +156,7 @@ Two-column on desktop:
 
 Left: copy + CTAs
 
-Right: visual — abstract animation canvas, Lottie, 3D art or subtle motion graphic
+Right: visual, abstract animation canvas, Lottie, 3D art or subtle motion graphic
 
 Single column on mobile (visual under CTA).
 
