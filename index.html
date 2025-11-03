@@ -383,7 +383,7 @@
             <div class="border border-white/10 bg-black/50 rounded-3xl p-8 hover:shadow-glow hover:border-accent/70 transition">
               <h3 class="font-heading text-2xl font-semibold">Tier 2 – Frontend + Automation Backend</h3>
               <p class="mt-2 text-muted">When you need AI, APIs, and small automations.</p>
-              <p class="mt-4 text-muted">You’ll connect your frontend to a backend made of automation tools like Make.com or n8n and whatever API services the app needs. This is ideal for webtools that process data, talk to APIs, or call AI.</p>
+              <p class="mt-4 text-muted">You’ll connect your frontend to an automation backend powered by n8n and whatever API services the app needs. This is ideal for webtools that process data, talk to APIs, or call AI.</p>
               <p class="mt-6 font-semibold text-white/80">Examples:</p>
               <ul class="mt-2 space-y-2 text-muted">
                 <li>A web tool that uses AI to summarize YouTube transcripts.</li>
@@ -429,7 +429,7 @@
                   </label>
                   <label class="flex items-center gap-3 text-sm text-muted">
                     <input id="toggle-automations" type="checkbox" class="h-4 w-4 rounded border-white/20 bg-black/40 text-accent focus:ring-accent/60" />
-                    <span>Use automations (Make / n8n)?</span>
+                    <span>Use automations (n8n)?</span>
                   </label>
                   <label class="flex items-center gap-3 text-sm text-muted">
                     <input id="toggle-supabase" type="checkbox" class="h-4 w-4 rounded border-white/20 bg-black/40 text-accent focus:ring-accent/60" />
@@ -457,7 +457,7 @@
                 <li>microapp.live for quickly shipping small tools and micro frontends.</li>
                 <li>Automation tools for Tier 2:
                   <ul class="mt-2 ml-5 list-disc space-y-1">
-                    <li>Make.com and/or n8n</li>
+                    <li>n8n (self-hosted)</li>
                     <li>Relevant API services depending on your app</li>
                   </ul>
                 </li>
@@ -638,11 +638,11 @@
               <div class="px-6 pb-6 hidden text-muted space-y-2">
                 <p>At a minimum, you’ll need:</p>
                 <ul class="list-disc ml-5 space-y-1">
-                  <li>A VPS in the $5–$10/month range.</li>
+                  <li>A VPS in the $4–$12/month range.</li>
                   <li>ChatGPT Plus (around $20/month).</li>
                   <li>A domain or sub-domain (about $12/year).</li>
                 </ul>
-                <p>We’ll also use tools like microapp.live, Make.com/n8n, Supabase, and GitHub. I’ll always suggest low-cost, practical options and show you where you can self-host to save money.</p>
+                <p>We’ll also use tools like microapp.live, n8n, Supabase, and GitHub. I’ll always suggest low-cost, practical options and show you where you can self-host to save money.</p>
               </div>
             </div>
             <div class="border border-white/10 bg-black/50 rounded-2xl overflow-hidden">
@@ -772,17 +772,17 @@
           },
           2: {
             summary:
-              'Ideal for tools that call APIs, AI, or spreadsheets. Automations are usually worth it, VPS stays optional unless you want to self-host.',
-            toggles: { vps: false, automations: true, supabase: false },
+              'Ideal for tools that call APIs, AI, or spreadsheets. We’ll lean on self-hosted n8n so you control automations and costs.',
+            toggles: { vps: true, automations: true, supabase: false },
             note:
-              'Automations unlock background jobs and AI workflows. Stick with managed services unless you need deeper control.'
+              'Automations unlock background jobs and AI workflows. Budget for the slightly larger VPS (~$6/mo) that runs both your app and n8n.'
           },
           3: {
             summary:
               'Full-stack microapps with auth, databases, and automations. Owning the VPS and database keeps costs predictable while you scale.',
             toggles: { vps: true, automations: true, supabase: true },
             note:
-              'This setup mirrors the cohort’s full build: VPS for hosting, Supabase for auth/database, automations for advanced workflows. Still far less than a typical SaaS burn.'
+              'This setup mirrors the cohort’s full build: a beefier VPS hosts your app, n8n, and Supabase (~$12/mo in the calculator). Still far less than a typical SaaS burn.'
           }
         };
 
@@ -805,20 +805,22 @@
           vps: {
             id: 'vps',
             label: 'VPS hosting',
-            monthly: 8,
-            helper: '$5–$10/mo for a reliable server.'
+            monthly: 4,
+            helper: 'Starts at $4/mo for a lightweight VPS. Calculator adjusts if you self-host extras.'
           },
           automations: {
             id: 'automations',
-            label: 'Automation tools (Make / n8n)',
-            monthly: 15,
-            helper: 'Budget $10–$30/mo depending on volume.'
+            label: 'Automation tools (n8n)',
+            monthly: 0,
+            helper: 'Self-host n8n on your VPS. Turn on VPS hosting to include the ~$6/mo server upgrade.',
+            priceLabel: 'Included in VPS upgrade'
           },
           supabase: {
             id: 'supabase',
-            label: 'Supabase (managed)',
-            monthly: 25,
-            helper: 'Free tier exists, but plan ~$25/mo once you have real users.'
+            label: 'Supabase (self-hosted)',
+            monthly: 0,
+            helper: 'Runs on the same VPS. Turn on VPS hosting to include the ~$12/mo server upgrade.',
+            priceLabel: 'Included in VPS upgrade'
           }
         };
 
@@ -830,13 +832,30 @@
             stackNote.textContent = `${selection.note} Estimates use mid-range pricing so you can plan without surprises.`;
           }
 
-          const chosenOptionals = [
-            toggleVps.checked ? optionalItems.vps : null,
-            toggleAutomations.checked ? optionalItems.automations : null,
-            toggleSupabase.checked ? optionalItems.supabase : null
-          ].filter(Boolean);
+          const itemsToRender = [...baseItems];
 
-          const itemsToRender = [...baseItems, ...chosenOptionals];
+          if (toggleVps.checked) {
+            const vpsItem = { ...optionalItems.vps };
+            if (toggleSupabase.checked) {
+              vpsItem.monthly = 12;
+              vpsItem.helper = 'Plan for a $10–$12/mo VPS when you self-host both n8n and Supabase. Calculator uses $12 to stay conservative.';
+            } else if (toggleAutomations.checked) {
+              vpsItem.monthly = 6;
+              vpsItem.helper = 'Upgrading to ~$6/mo covers a VPS that can comfortably run your app plus n8n.';
+            } else {
+              vpsItem.monthly = 4;
+              vpsItem.helper = 'Starts at $4/mo for a lightweight VPS that serves your frontend.';
+            }
+            itemsToRender.push(vpsItem);
+          }
+
+          if (toggleAutomations.checked) {
+            itemsToRender.push({ ...optionalItems.automations });
+          }
+
+          if (toggleSupabase.checked) {
+            itemsToRender.push({ ...optionalItems.supabase });
+          }
           stackBreakdown.innerHTML = '';
           let total = 0;
 
@@ -859,7 +878,7 @@
 
             const price = document.createElement('span');
             price.className = 'text-sm font-semibold text-white/80';
-            price.textContent = `~${currencyFormatter.format(item.monthly)}/mo`;
+            price.textContent = item.priceLabel ?? `~${currencyFormatter.format(item.monthly)}/mo`;
 
             li.appendChild(labelWrapper);
             li.appendChild(price);
