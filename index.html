@@ -48,7 +48,7 @@
   </style>
 </head>
 <body class="bg-background text-white">
-  <div class="min-h-screen">
+  <div class="min-h-screen" id="page-content">
     <!-- Navigation -->
     <nav class="fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur border-b border-white/5">
       <div class="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 py-3 md:py-4">
@@ -58,7 +58,13 @@
           <a href="#offer" class="text-muted hover:text-white transition">What You Get</a>
           <a href="#faq" class="text-muted hover:text-white transition">FAQ</a>
         </div>
-        <a href="https://buy.stripe.com/5kQaEZcq71nuevkekO1ck0M" class="px-4 sm:px-5 py-2 rounded-full bg-accent text-white font-medium text-xs sm:text-sm md:text-base whitespace-nowrap shadow-glow transition transform hover:scale-[1.02]">Join the Vibe Coding Cohort</a>
+        <div class="flex items-end gap-3 sm:gap-4 flex-wrap justify-end text-right">
+          <div class="flex flex-col items-end gap-1 text-[11px] sm:flex-row sm:items-center sm:gap-2 sm:text-xs">
+            <span class="uppercase tracking-widest text-[10px] sm:text-xs text-muted">Offer ends in</span>
+            <span data-countdown class="font-mono text-sm sm:text-base text-white" aria-live="polite">Loading…</span>
+          </div>
+          <a href="https://buy.stripe.com/5kQaEZcq71nuevkekO1ck0M" class="px-4 sm:px-5 py-2 rounded-full bg-accent text-white font-medium text-xs sm:text-sm md:text-base whitespace-nowrap shadow-glow transition transform hover:scale-[1.02]">Join the Vibe Coding Cohort</a>
+        </div>
       </div>
     </nav>
 
@@ -87,6 +93,7 @@
               <a href="https://buy.stripe.com/5kQaEZcq71nuevkekO1ck0M" class="px-8 py-3 rounded-full bg-accent font-semibold text-white shadow-glow transition transform hover:scale-[1.03]">Join the Vibe Coding Cohort</a>
               <a href="#curriculum" class="text-muted hover:text-white transition">See what we’ll build together</a>
             </div>
+            <p class="mt-4 text-sm text-accent font-semibold">Offer ends in <span class="font-mono" data-countdown aria-live="polite">Loading…</span></p>
             <p class="mt-4 text-sm text-muted">Secure your seat • $497 • Starts November 10</p>
             <p class="mt-1 text-xs text-muted">Secure checkout • Full refund if not worth it</p>
           </div>
@@ -702,6 +709,7 @@
           <div class="mt-10 flex flex-col items-center gap-3">
             <a href="https://buy.stripe.com/5kQaEZcq71nuevkekO1ck0M" class="px-10 py-3 rounded-full bg-accent font-semibold text-white shadow-glow transition transform hover:scale-[1.03]">Join the Vibe Coding Cohort</a>
             <p class="text-sm text-muted">3 weeks • $497 • Starts November 10</p>
+            <p class="text-sm text-accent font-semibold">Offer ends in <span class="font-mono" data-countdown aria-live="polite">Loading…</span></p>
             <p class="text-xs text-muted">Control the stack. Control the data. Control the cost. And finally ship something real.</p>
           </div>
         </div>
@@ -709,18 +717,86 @@
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-white/5 py-12 bg-black/60" id="footer">
-      <div class="max-w-4xl mx-auto px-6 text-muted">
-        <p class="text-lg text-white/80">Best,</p>
-        <p class="mt-1">Hans T</p>
-        <p>Owner | Scale By Tech</p>
+  <footer class="border-t border-white/5 py-12 bg-black/60" id="footer">
+    <div class="max-w-4xl mx-auto px-6 text-muted">
+      <p class="text-lg text-white/80">Best,</p>
+      <p class="mt-1">Hans T</p>
+      <p>Owner | Scale By Tech</p>
         <p class="mt-6">PS: This is for people who want to learn to vibe code without the fluff and build functional stuff. Tiny apps, real results. Join the Vibe Coding Cohort 👉 <a href="https://buy.stripe.com/5kQaEZcq71nuevkekO1ck0M" class="text-accent hover:underline">Join Now</a></p>
-        <p class="mt-4">PPS: I know this works. I’ve created a lot of apps for myself and for customers. This is a skill that really moves the needle, and it starts with shipping your first (or next) microapp.</p>
-      </div>
-    </footer>
+      <p class="mt-4">PPS: I know this works. I’ve created a lot of apps for myself and for customers. This is a skill that really moves the needle, and it starts with shipping your first (or next) microapp.</p>
+    </div>
+  </footer>
+</div>
+
+  <div id="expired-overlay" class="fixed inset-0 hidden bg-black text-white items-center justify-center text-center p-6 z-[1000]">
+    <p class="text-2xl sm:text-3xl font-heading">sorry offer no longer available</p>
   </div>
 
   <script>
+      const countdownElements = document.querySelectorAll('[data-countdown]');
+      const pageContent = document.getElementById('page-content');
+      const expiredOverlay = document.getElementById('expired-overlay');
+      const countdownDeadline = new Date('November 9, 2025 23:59:00');
+      const countdownTimestamp = countdownDeadline.getTime();
+      let countdownExpired = false;
+      let countdownInterval;
+
+      function showExpiredState() {
+        if (countdownExpired) return;
+        countdownExpired = true;
+        countdownElements.forEach(el => {
+          el.textContent = 'Offer closed';
+        });
+        if (pageContent) {
+          pageContent.classList.add('hidden');
+        }
+        if (expiredOverlay) {
+          expiredOverlay.classList.remove('hidden');
+          expiredOverlay.classList.add('flex');
+        }
+        if (countdownInterval) {
+          clearInterval(countdownInterval);
+        }
+      }
+
+      function updateCountdown() {
+        if (!countdownElements.length) {
+          return;
+        }
+
+        if (Number.isNaN(countdownTimestamp)) {
+          countdownElements.forEach(el => {
+            el.textContent = '—';
+          });
+          return;
+        }
+
+        const diff = countdownTimestamp - Date.now();
+
+        if (diff <= 0) {
+          showExpiredState();
+          return;
+        }
+
+        const totalSeconds = Math.floor(diff / 1000);
+        const days = Math.floor(totalSeconds / (3600 * 24));
+        const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        const formatted = `${days}d ${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`;
+
+        countdownElements.forEach(el => {
+          el.textContent = formatted;
+        });
+      }
+
+      if (countdownElements.length) {
+        updateCountdown();
+        if (!countdownExpired) {
+          countdownInterval = setInterval(updateCountdown, 1000);
+        }
+      }
+
       document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
           const targetId = this.getAttribute('href');
