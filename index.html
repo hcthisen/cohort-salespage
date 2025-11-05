@@ -21,7 +21,7 @@
             muted: '#9CA3AF',
           },
           boxShadow: {
-            glow: '0 10px 40px rgba(59, 130, 246, 0.25)',
+            glow: '0 20px 70px rgba(59, 130, 246, 0.45)',
           },
         },
       },
@@ -32,13 +32,70 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <style>
     body { font-family: 'Inter', ui-sans-serif, system-ui; }
+    .text-xs { font-size: calc(0.75rem + 2px) !important; }
+    .text-sm { font-size: calc(0.875rem + 2px) !important; }
+    .text-base { font-size: calc(1rem + 2px) !important; }
+    .text-lg { font-size: calc(1.125rem + 2px) !important; }
+    .text-[10px] { font-size: 12px !important; }
+    .text-[11px] { font-size: 13px !important; }
+    @media (min-width: 640px) {
+      .sm\:text-xs { font-size: calc(0.75rem + 2px) !important; }
+      .sm\:text-sm { font-size: calc(0.875rem + 2px) !important; }
+      .sm\:text-base { font-size: calc(1rem + 2px) !important; }
+      .sm\:text-lg { font-size: calc(1.125rem + 2px) !important; }
+    }
+    @media (min-width: 768px) {
+      .md\:text-sm { font-size: calc(0.875rem + 2px) !important; }
+      .md\:text-base { font-size: calc(1rem + 2px) !important; }
+      .md\:text-lg { font-size: calc(1.125rem + 2px) !important; }
+    }
     .animate-gradient {
-      background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.35), transparent 45%),
-                  radial-gradient(circle at top right, rgba(168, 85, 247, 0.25), transparent 55%),
-                  radial-gradient(circle at bottom left, rgba(20, 184, 166, 0.25), transparent 50%),
+      background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.55), transparent 45%),
+                  radial-gradient(circle at top right, rgba(168, 85, 247, 0.4), transparent 55%),
+                  radial-gradient(circle at bottom left, rgba(20, 184, 166, 0.38), transparent 50%),
                   #050814;
       background-size: 200% 200%;
       animation: gradientMove 18s ease-in-out infinite;
+    }
+    .glow-panel {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(59, 130, 246, 0.35);
+      background: linear-gradient(140deg, rgba(5, 8, 20, 0.95) 0%, rgba(9, 15, 32, 0.95) 45%, rgba(59, 130, 246, 0.22) 100%);
+      backdrop-filter: blur(18px) saturate(140%);
+    }
+    .glow-panel::before {
+      content: '';
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.55), transparent 60%),
+                  radial-gradient(circle at bottom right, rgba(20, 184, 166, 0.4), transparent 65%);
+      opacity: 0.85;
+      filter: blur(18px);
+      transition: opacity 0.4s ease;
+    }
+    .glow-panel:hover::before {
+      opacity: 1;
+    }
+    .glow-panel > * {
+      position: relative;
+      z-index: 1;
+    }
+    .bg-white\/5 {
+      background-color: rgba(255, 255, 255, 0.12) !important;
+      backdrop-filter: blur(14px) saturate(120%);
+    }
+    .bg-black\/50 {
+      background-color: rgba(2, 6, 23, 0.75) !important;
+      backdrop-filter: blur(16px) saturate(130%);
+    }
+    .bg-black\/60 {
+      background-color: rgba(2, 6, 23, 0.82) !important;
+      backdrop-filter: blur(18px) saturate(140%);
+    }
+    .bg-surface\/80 {
+      background-color: rgba(5, 8, 20, 0.9) !important;
+      backdrop-filter: blur(14px) saturate(130%);
     }
     @keyframes gradientMove {
       0% { background-position: 0% 50%; }
@@ -304,7 +361,7 @@
         <div class="max-w-6xl mx-auto px-6">
           <h2 class="font-heading text-3xl md:text-4xl font-semibold">Choose Your Level: From Simple Widgets to Full Web Apps</h2>
           <p class="mt-6 text-muted text-lg max-w-3xl">Not everyone needs a full-blown SaaS. That’s why the cohort is structured around three tiers of complexity. You’ll pick the tier that fits your skills, time, and goals, and you can always move up later.</p>
-          <div class="mt-12 border border-white/10 bg-black/60 rounded-3xl p-8 md:p-10 shadow-glow">
+          <div class="mt-12 glow-panel rounded-3xl p-8 md:p-10 shadow-glow">
             <div class="grid lg:grid-cols-[1.1fr_0.9fr] gap-10 items-start">
               <div>
                 <h3 class="font-heading text-2xl font-semibold text-white">What Microapp Should I Build?</h3>
@@ -419,7 +476,7 @@
         <div class="max-w-6xl mx-auto px-6">
           <h2 class="font-heading text-3xl md:text-4xl font-semibold">Tools, Stack, and Costs (No Surprise Expenses)</h2>
           <p class="mt-6 text-muted text-lg max-w-3xl">This cohort is about practical building with a realistic budget. We’ll keep tool costs as low as possible while still using a solid, modern stack.</p>
-          <div class="mt-10 border border-white/10 bg-black/50 rounded-3xl p-8 shadow-inner">
+          <div class="mt-10 glow-panel rounded-3xl p-8 shadow-glow">
             <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
               <div class="lg:max-w-md">
                 <h3 class="font-heading text-2xl font-semibold">Microapp Stack &amp; Cost Calculator</h3>
