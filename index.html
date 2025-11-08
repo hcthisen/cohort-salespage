@@ -81,6 +81,33 @@
       position: relative;
       z-index: 1;
     }
+    .fit-card {
+      position: relative;
+      z-index: 0;
+      isolation: isolate;
+      overflow: hidden;
+    }
+    .fit-card::before {
+      content: '';
+      position: absolute;
+      inset: -35%;
+      z-index: -1;
+      opacity: 0.85;
+      filter: blur(90px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .fit-card--green::before {
+      background: radial-gradient(circle at 40% 30%, rgba(34, 197, 94, 0.85), transparent 60%),
+                  radial-gradient(circle at 70% 70%, rgba(16, 185, 129, 0.6), transparent 70%);
+    }
+    .fit-card--red::before {
+      background: radial-gradient(circle at 35% 35%, rgba(239, 68, 68, 0.8), transparent 60%),
+                  radial-gradient(circle at 65% 70%, rgba(244, 114, 182, 0.55), transparent 70%);
+    }
+    .fit-card:hover::before {
+      opacity: 1;
+      transform: scale(1.05);
+    }
     .bg-white\/5 {
       background-color: rgba(255, 255, 255, 0.12) !important;
       backdrop-filter: blur(14px) saturate(120%);
@@ -275,7 +302,7 @@
             <p class="mt-4 text-muted text-lg">Let’s make sure this is a good fit.</p>
           </header>
           <div class="mt-12 grid md:grid-cols-2 gap-10">
-            <div class="border border-white/10 bg-black/40 rounded-3xl p-8 hover:border-accent/60 transition">
+            <div class="fit-card fit-card--green border border-white/10 bg-black/40 rounded-3xl p-8 hover:border-accent/60 transition">
               <h3 class="font-heading text-2xl font-semibold">This Is For You If…</h3>
               <ul class="mt-6 space-y-4 text-muted">
                 <li>You’re new to building apps or haven’t shipped one yet, but you’re ready to change that.</li>
@@ -284,7 +311,7 @@
                 <li>You’re okay with a hands-on, slightly scrappy “vibe coding” style, fast, iterative, and focused on shipping.</li>
               </ul>
             </div>
-            <div class="border border-white/10 bg-black/40 rounded-3xl p-8 hover:border-accent/60 transition">
+            <div class="fit-card fit-card--red border border-white/10 bg-black/40 rounded-3xl p-8 hover:border-accent/60 transition">
               <h3 class="font-heading text-2xl font-semibold">This Is Not For You If…</h3>
               <ul class="mt-6 space-y-4 text-muted">
                 <li>You’ve already built multiple production apps solo and are looking for advanced scaling or architecture topics.</li>
