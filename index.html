@@ -813,6 +813,49 @@
         </div>
       </section>
 
+      <!-- Reading Session Generator -->
+      <section class="py-24 border-t border-white/5" id="reading-tool">
+        <div class="max-w-4xl mx-auto px-6">
+          <div class="flex flex-col gap-6 bg-black/60 border border-white/10 rounded-3xl p-8 md:p-12">
+            <div>
+              <h2 class="font-heading text-3xl md:text-4xl font-semibold">Reading session generator</h2>
+              <p class="mt-3 text-muted text-base md:text-lg">
+                Launch a new reading session to fetch the text you need to read out loud. We'll notify you as soon as the words are ready.
+              </p>
+            </div>
+            <div class="flex flex-col gap-4">
+              <button
+                type="button"
+                data-read-start
+                data-supabase-url=""
+                data-supabase-anon-key=""
+                data-start-read-webhook=""
+                class="self-start inline-flex items-center gap-2 px-6 py-3 rounded-full bg-accent text-white font-semibold shadow-glow transition-transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent focus:ring-offset-black"
+              >
+                Start reading
+              </button>
+              <p
+                data-read-status
+                class="hidden text-sm text-accent/90"
+                aria-live="polite"
+              ></p>
+              <p
+                data-read-error
+                class="hidden text-sm text-rose-300"
+                role="alert"
+              ></p>
+              <pre
+                data-read-text
+                class="hidden bg-black/60 border border-white/10 rounded-2xl p-6 text-left whitespace-pre-wrap text-base leading-relaxed"
+              ></pre>
+              <p class="text-xs text-muted">
+                Configure your Supabase credentials and <code>START_READ_WEBHOOK</code> via environment variables or <code>data-*</code> attributes on the button above.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Final CTA -->
       <section class="py-24 border-t border-white/5" id="final-cta">
         <div class="max-w-5xl mx-auto px-6 text-center">
@@ -1198,5 +1241,6 @@
       });
     });
   </script>
+  <script type="module" src="./scripts/reader.js"></script>
 </body>
 </html>
